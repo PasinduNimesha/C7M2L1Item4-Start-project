@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
     private val responseLiveData = MutableLiveData<String>()
     private val httpClient = HttpClient(Android)
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
