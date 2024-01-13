@@ -11,6 +11,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.littlelemon.ui.theme.LittleLemonTheme
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -39,6 +41,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            val menuItems = getMenu("Salads")
+
+            runOnUiThread() {
+                menuItemsLiveData.value = menuItems
+            }
+        }
+
 
         setContent {
             LittleLemonTheme {
@@ -49,11 +59,22 @@ class MainActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        val items by menuItemsLiveData.observeAsState(emptyList())
+                        MenuItems(items)
                     }
                 }
             }
         }
     }
+
+    private suspend fun getMenu(category: String) : List<String> {
+        val response: Map<String, MenuCategory> =
+            client.get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonMenu.json")
+                .body()
+        return response[category]?.menu ?: listOf()
+    }
+
+
 }
 
 @Composable
