@@ -15,14 +15,37 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.littlelemon.ui.theme.LittleLemonTheme
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class MenuCategory(
+    val menu: List<String>
+)
+
+@Serializable
+data class RestaurantMenu(
+    val Appetizers: MenuCategory,
+    val Salads: MenuCategory,
+    val Drinks: MenuCategory,
+    val Dessert: MenuCategory
+)
 
 class MainActivity : ComponentActivity() {
     private val responseLiveData = MutableLiveData<String>()
-    private val httpClient = HttpClient(Android)
+    private val httpClient = HttpClient(Android){
+        install(ContentNegotiation){
+            json(contentType = ContentType.Application.Json)
+        }
+    }
+    private val menuItemsLiveData = MutableLiveData<List<String>>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,9 +61,10 @@ class MainActivity : ComponentActivity() {
                         Button(
                             onClick = {
                                 lifecycleScope.launch {
-                                    val response = fetchContent()
+                                    val menuItems = getMenu("Salads")
+
                                     runOnUiThread {
-                                        responseLiveData.value = response
+                                        menuItemsLiveData.value = menuItems
                                     }
                                 }
                             }
@@ -59,5 +83,13 @@ class MainActivity : ComponentActivity() {
         return httpClient
             .get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonMenu.json")
             .bodyAsText()
+    }
+
+    private suspend fun getMenu(category: String): List<String> {
+        val response: Map<String, MenuCategory> =
+            httpClient.get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonMenu.json")
+                .body()
+
+        return response[category]?.menu ?: listOf()
     }
 }
