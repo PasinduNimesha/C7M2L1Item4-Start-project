@@ -12,6 +12,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.littlelemon.ui.theme.LittleLemonTheme
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val responseLiveData = MutableLiveData<String>()
     private val httpClient = HttpClient(Android)
+    val glide = Glide.with(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
