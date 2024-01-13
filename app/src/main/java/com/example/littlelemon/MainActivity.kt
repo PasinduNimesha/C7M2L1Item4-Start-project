@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val responseLiveData = MutableLiveData<String>()
     private val httpClient = HttpClient(Android)
-    val glide = Glide.with(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
